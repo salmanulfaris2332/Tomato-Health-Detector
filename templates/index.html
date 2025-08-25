@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriLens - Tomato Health Detector</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Plant Health Detector</h1>
+    <p>Upload an image of a tomato leaf to get an instant health diagnosis.</p>
+
+    <form method="post" enctype="multipart/form-data" id="prediction-form">
+      <div class="file-input-wrapper">
+        <input type="file" name="file" id="file" required>
+        <label for="file" class="file-label" id="file-label">Choose an Image...</label>
+      </div>
+      <br>
+      <input type="submit" value="Analyze Leaf" id="submit-button">
+    </form>
+
+    <div id="loader" class="loader" style="display: none;"></div>
+
+    {% if prediction %}
+      <div class="result-container">
+        
+        {% if image_filename %}
+          <img src="{{ url_for('static', filename='uploads/' + image_filename) }}" class="uploaded-image">
+        {% endif %}
+
+        <h2 class="prediction-result">{{ prediction }}</h2>
+        
+        {% if details %}
+        <div class="details-box">
+            <h3>Description:</h3>
+            <p>{{ details.description }}</p>
+            <h3>Recommended Action:</h3>
+            <p>{{ details.treatment }}</p>
+        </div>
+        {% endif %}
+
+        <button id="reset-button" class="reset-button">Scan Another Leaf</button>
+
+      </div> 
+    {% endif %}
+
+    </div> <script>
+    // ======================================================
+    // SCRIPT 1: Updates the file input button with the chosen file's name
+    // ======================================================
+    const fileInput = document.getElementById('file');
+    const fileLabel = document.getElementById('file-label');
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        fileLabel.textContent = fileInput.files[0].name;
+      } else {
+        fileLabel.textContent = 'Choose an Image...';
+      }
+    });
+
+    // ======================================================
+    // SCRIPT 2: Makes the "Scan Another Leaf" button work
+    // ======================================================
+    const resetButton = document.getElementById('reset-button');
+
+    if (resetButton) {
+      resetButton.addEventListener('click', () => {
+        window.location.href = '/';
+      });
+    }
+
+    // ======================================================
+    // SCRIPT 3: Shows the loading spinner on form submission (Your New Code)
+    // ======================================================
+    const form = document.getElementById('prediction-form');
+    const submitButton = document.getElementById('submit-button');
+    const loader = document.getElementById('loader');
+
+    form.addEventListener('submit', () => {
+      submitButton.style.display = 'none';
+      loader.style.display = 'block';
+    });
+  </script>
+
+</body> </html>
+

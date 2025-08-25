@@ -1,0 +1,159 @@
+/* Import a clean, modern font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Basic styling for the entire page */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f2f5;
+    /* A light grey background */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* The main container card */
+.container {
+    background-color: white;
+    padding: 40px 50px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    transition: transform 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+    /* A subtle lift effect on hover */
+}
+
+/* Main title styling */
+h1 {
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #1a73e8;
+    /* A nice blue color */
+}
+
+/* Prediction result styling */
+.prediction-result {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #2a8a48;
+    /* A healthy green for the result */
+    margin-top: 30px;
+    background-color: #e8f5e9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+/* Styling for the form and its elements */
+form {
+    margin-top: 20px;
+}
+
+/* Custom file input button */
+.file-input-wrapper {
+    margin-bottom: 25px;
+}
+
+input[type="file"] {
+    display: none;
+    /* Hide the default ugly button */
+}
+
+.file-label {
+    background-color: #f0f2f5;
+    color: #5f6368;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.file-label:hover {
+    background-color: #e8eaed;
+}
+
+/* Custom submit button */
+input[type="submit"] {
+    background: linear-gradient(45deg, #1a73e8, #4285f4);
+    color: white;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: box-shadow 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    box-shadow: 0 4px 15px rgba(26, 115, 232, 0.4);
+}
+
+.details-box {
+    text-align: left;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.details-box h3 {
+    margin-top: 0;
+    color: #1a73e8;
+}
+
+/* Styling for the uploaded image */
+.uploaded-image {
+    max-width: 80%;
+    /* Ensure the image is not wider than its container */
+    height: auto;
+    /* Maintain aspect ratio */
+    border-radius: 8px;
+    /* Rounded corners */
+    margin-bottom: 20px;
+    /* Space between image and prediction text */
+    border: 2px solid #e8eaed;
+    /* A light border */
+
+}
+.reset-button {
+    background-color: #f8f9fa;
+    color: #5f6368;
+    border: 1px solid #dee2e6;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-top: 25px;
+    transition: all 0.3s ease;
+}
+
+.reset-button:hover {
+    background-color: #e8eaed;
+    border-color: #ced4da;
+}
+.loader {
+  border: 8px solid #f3f3f3; /* Light grey circle */
+  border-top: 8px solid #1a73e8; /* Blue color for the spinning part */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite; /* The animation magic */
+  margin: 20px auto; /* Center the spinner */
+}
+
+/* Keyframes define the animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

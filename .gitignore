@@ -1,0 +1,12 @@
+# Python virtual environment
+.venv/
+
+# Large data and image folders
+Tomato___/
+uploads/
+
+# Database file
+history.db
+
+# Python cache
+__pycache__/
