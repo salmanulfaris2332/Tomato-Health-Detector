@@ -16,8 +16,10 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
 
 # --- GEMINI AI CONFIGURATION ---
 try:
-    # PASTE YOUR API KEY HERE
-    genai.configure(api_key="AIzaSyBsVEalTK-Zdw_3OfxJSWdTVCunO2K0few")
+    # NEW: Try to get key from Environment (Render), otherwise use the hardcoded one (for local testing)
+    api_key = os.environ.get("GOOGLE_API_KEY") or "AIzaSyBsVEalTK-Zdw_3OfxJSWdTVCunO2K0few"
+    
+    genai.configure(api_key=api_key)
     chatbot_model = genai.GenerativeModel('gemini-flash-latest')
     print("Gemini AI model loaded successfully.")
 except Exception as e:
