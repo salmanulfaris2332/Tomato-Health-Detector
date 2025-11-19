@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Plant Health Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    
+    <div class="header-section">
+      <div class="logo">
+        <span class="logo-icon">🌱</span>
+        <span class="logo-text">AgriLens</span>
+      </div>
+      <a href="/history" class="history-link-button">
+        <span class="history-icon">📊</span>
+        Scan History
+      </a>
+    </div>
+
+    <div class="hero-section">
+        <h1>My Health <span class="highlight">Dashboard</span></h1>
+        <p>Here's a breakdown of your past scans.</p>
+        <a href="/" class="history-link-button">← Back to Scanner</a>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="predictionPieChart"></canvas>
+    </div>
+
+  </div>
+
+  <script>
+    // This script runs after the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        // Get the data that we passed from Flask
+        // We use 'tojson' to safely convert the Python lists to JavaScript arrays
+        const labels = {{ labels|tojson }};
+        const data = {{ data|tojson }};
+
+        // Get the canvas element
+        const ctx = document.getElementById('predictionPieChart').getContext('2d');
+
+        // Create the new Pie Chart
+        const myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Scan Counts',
+                    data: data,
+                    backgroundColor: [
+                        '#2EC7C0', // Our theme color
+                        '#8A4FFF', // Our other theme color
+                        '#FF6B6B', // Red
+                        '#FFD166', // Yellow
+                        '#06D6A0', // Green
+                        '#118AB2', // Blue
+                        '#F78C6B',
+                        '#96E072',
+                        '#B490F0',
+                        '#FF9F40'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Scan Diagnosis Breakdown',
+                        font: {
+                            size: 18
+                        }
+                    }
+                }
+            }
+        });
+    });
+  </script>
+</body>
+</html>

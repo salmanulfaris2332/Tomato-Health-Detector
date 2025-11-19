@@ -1,0 +1,16 @@
+{
+  "name": "Plant Health Detector",
+  "short_name": "AgriLens",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fdfc",
+  "theme_color": "#2EC7C0",
+  "description": "An AI-powered app to detect plant diseases.",
+  "icons": [
+    {
+      "src": "/static/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

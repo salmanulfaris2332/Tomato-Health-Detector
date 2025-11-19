@@ -1,91 +1,376 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgriLens - Tomato Health Detector</title>
-
+  <title>AgriLens - Plant Health Detector</title>
+  
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#2EC7C0"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
   <div class="container">
-    <h1>Plant Health Detector</h1>
-    <p>Upload an image of a tomato leaf to get an instant health diagnosis.</p>
+    
+    <div class="header-section">
+      <div class="logo">
+        <span class="logo-icon">🌱</span>
+        <span class="logo-text">AgriLens</span>
+      </div>
+      <div class="header-buttons">
+        <a href="/dashboard" class="history-link-button">
+          <span class="history-icon">📈</span> Dashboard
+        </a>
+        <a href="/history" class="history-link-button">
+          <span class="history-icon">📊</span> History
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-section">
+      <h1>Plant Health <span class="highlight">Detector</span></h1>
+      <p>Select your crop, then upload an image to get an instant health diagnosis.</p>
+    </div>
 
     <form method="post" enctype="multipart/form-data" id="prediction-form">
-      <div class="file-input-wrapper">
-        <input type="file" name="file" id="file" required>
-        <label for="file" class="file-label" id="file-label">Choose an Image...</label>
+      <div class="crop-selector">
+        <label for="crop-select">1. Select your crop:</label>
+        <select name="crop_selection" id="crop-select">
+          <option value="tomato">Tomato</option>
+          <option value="potato">Potato</option>
+        </select>
       </div>
-      <br>
+      
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-zone-content">
+          <span class="drop-zone-icon">📷</span>
+          <span class="drop-zone-text">2. Drag & drop your image here</span>
+          <span class="drop-zone-subtext">or click to browse</span>
+        </div>
+        <input type="file" name="file" id="file" accept="image/*" capture="environment" required>
+      </div>
+
+      <div class="file-info" id="file-info" style="display: none;">
+        <span class="file-name" id="file-name">No file selected</span>
+        <span class="file-size" id="file-size"></span>
+      </div>
+      
       <input type="submit" value="Analyze Leaf" id="submit-button">
     </form>
 
-    <div id="loader" class="loader" style="display: none;"></div>
+    <div id="loader" class="loader" style="display: none;">
+      <div class="loader-spinner"></div>
+      <p class="loader-text">Analyzing your leaf...</p>
+    </div>
 
     {% if prediction %}
       <div class="result-container">
         
         {% if image_filename %}
-          <img src="{{ url_for('static', filename='uploads/' + image_filename) }}" class="uploaded-image">
+          <div class="image-preview">
+            <img src="{{ url_for('static', filename='uploads/' + image_filename) }}" class="uploaded-image">
+          </div>
         {% endif %}
 
-        <h2 class="prediction-result">{{ prediction }}</h2>
+        <div class="result-header">
+          <h2>Analysis Result</h2>
+          <div class="prediction-badge {% if 'healthy' in prediction|lower %}healthy{% else %}not-healthy{% endif %}">
+            <span class="badge-icon">
+                {% if 'healthy' in prediction|lower %}✅
+                {% elif 'bacterial' in prediction|lower %}🦠
+                {% elif 'early' in prediction|lower %}🍂
+                {% elif 'late' in prediction|lower %}🍁
+                {% elif 'mold' in prediction|lower %}🍄
+                {% else %}🔍{% endif %}
+            </span>
+            <span class="prediction-result">{{ prediction }}</span>
+          </div>
+        </div>
+
+        {% if ai_description %}
+        <div class="ai-observation">
+            <div class="ai-header">
+                <span class="ai-icon">🤖</span>
+                <h3>AI Observation</h3>
+            </div>
+            <p>{{ ai_description }}</p>
+        </div>
+        {% endif %}
         
         {% if details %}
         <div class="details-box">
-            <h3>Description:</h3>
-            <p>{{ details.description }}</p>
-            <h3>Recommended Action:</h3>
-            <p>{{ details.treatment }}</p>
+          
+          <div class="quick-facts">
+             <div class="fact-badge severity-{{ details.severity|lower|truncate(4, True, '') }}">
+                <span class="fact-label">Severity:</span> {{ details.severity }}
+             </div>
+             <div class="fact-item">
+                <strong>🔬 Scientific Name:</strong> {{ details.scientific_name }}
+             </div>
+             <div class="fact-item">
+                <strong>🌡️ Thrives in:</strong> {{ details.conditions }}
+             </div>
+          </div>
+          
+          <hr class="divider">
+
+          <div class="detail-section">
+            <div class="detail-header">
+              <span class="detail-icon">📝</span>
+              <h3>Symptoms</h3>
+            </div>
+            <p>{{ details.symptoms }}</p>
+          </div>
+
+           <div class="treatment-grid">
+              <div class="treatment-col organic">
+                <div class="detail-header">
+                  <span class="detail-icon">🌿</span>
+                  <h3>Organic Control</h3>
+                </div>
+                <p>{{ details.treatment_organic }}</p>
+              </div>
+              
+              <div class="treatment-col chemical">
+                <div class="detail-header">
+                  <span class="detail-icon">🧪</span>
+                  <h3>Chemical Control</h3>
+                </div>
+                <p>{{ details.treatment_chemical }}</p>
+              </div>
+           </div>
+
+           <div class="detail-section" style="margin-top: 20px;">
+            <div class="detail-header">
+              <span class="detail-icon">🛡️</span>
+              <h3>Prevention</h3>
+            </div>
+            <p>{{ details.prevention }}</p>
+          </div>
+
         </div>
         {% endif %}
 
-        <button id="reset-button" class="reset-button">Scan Another Leaf</button>
+        <div class="share-section">
+            <p class="share-label">Share Report:</p>
+            <div class="share-buttons">
+                <a href="https://wa.me/?text=Help!%20My%20plant%20diagnosis%20is:%20{{ prediction }}%0A%0ADetails:%20{{ details.description }}" 
+                   target="_blank" 
+                   class="share-btn whatsapp">
+                   <span>📱</span> Share on WhatsApp
+                </a>
+                
+                <button onclick="window.print()" class="share-btn print">
+                   <span>🖨️</span> Save as PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+
+        <div class="action-buttons">
+          <button id="reset-button" class="reset-button">
+            <span class="button-icon">🔄</span>
+            Scan Another Leaf
+          </button>
+        </div>
 
       </div> 
-    {% endif %}
+    {% endif %} </div>
 
-    </div> <script>
-    // ======================================================
-    // SCRIPT 1: Updates the file input button with the chosen file's name
-    // ======================================================
+  <div class="chat-bubble" id="chat-bubble">
+    <span>💬</span>
+  </div>
+
+  <div class="chat-popup" id="chat-popup">
+    <div class="chat-header">
+      <h3>AgriLens Assistant</h3>
+      <span class="chat-close" id="chat-close">&times;</span>
+    </div>
+    
+    <div class="chat-body" id="chat-body">
+      <div class="chat-message ai">
+        Hello! I'm your AI assistant. Ask me any follow-up questions about your scan result.
+      </div>
+    </div>
+
+    <div class="chat-suggestions">
+      <button class="suggestion-chip">Explain the disease</button>
+      <button class="suggestion-chip">How to prevent this?</button>
+      <button class="suggestion-chip">Organic solutions?</button>
+      <button class="suggestion-chip">Chemical solutions?</button>
+    </div>
+    <div class="chat-footer">
+      <input type="text" id="chat-input" placeholder="Ask a question...">
+      <button id="chat-send">Send</button>
+    </div>
+  </div>
+
+  <script>
+    // File Input & Drag/Drop
     const fileInput = document.getElementById('file');
-    const fileLabel = document.getElementById('file-label');
+    const dropZone = document.getElementById('drop-zone');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const fileInfo = document.getElementById('file-info');
+    const dropZoneText = document.querySelector('.drop-zone-subtext');
+    const dropZoneIcon = document.querySelector('.drop-zone-icon');
 
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files.length > 0) {
-        fileLabel.textContent = fileInput.files[0].name;
-      } else {
-        fileLabel.textContent = 'Choose an Image...';
-      }
+    fileInput.addEventListener('change', (e) => {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            fileName.textContent = file.name;
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+            fileSize.textContent = `${sizeInMB} MB`;
+            fileInfo.style.display = 'flex';
+            document.querySelector('.drop-zone-text').textContent = file.name;
+            dropZoneIcon.textContent = '📄';
+            dropZoneText.style.display = 'none';
+            dropZone.classList.add('file-selected');
+        }
     });
 
-    // ======================================================
-    // SCRIPT 2: Makes the "Scan Another Leaf" button work
-    // ======================================================
-    const resetButton = document.getElementById('reset-button');
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('drag-over');
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+    });
 
+    // Reset & Loader
+    const resetButton = document.getElementById('reset-button');
     if (resetButton) {
       resetButton.addEventListener('click', () => {
         window.location.href = '/';
       });
     }
 
-    // ======================================================
-    // SCRIPT 3: Shows the loading spinner on form submission (Your New Code)
-    // ======================================================
     const form = document.getElementById('prediction-form');
     const submitButton = document.getElementById('submit-button');
     const loader = document.getElementById('loader');
-
+    
     form.addEventListener('submit', () => {
       submitButton.style.display = 'none';
-      loader.style.display = 'block';
+      loader.style.display = 'flex';
     });
+
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}");
+      });
+    }
+
+    // Chatbot
+    const chatBubble = document.getElementById('chat-bubble');
+    const chatPopup = document.getElementById('chat-popup');
+    const chatClose = document.getElementById('chat-close');
+    const chatBody = document.getElementById('chat-body');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+    // --- ADD THIS NEW LOGIC FOR SUGGESTIONS ---
+    const suggestionChips = document.querySelectorAll('.suggestion-chip');
+
+    suggestionChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const text = chip.textContent;
+            chatInput.value = text; // Put text in input box
+            sendMessage(); // Auto-send it
+        });
+    });
+    let currentScanContext = "No scan performed yet.";
+
+    chatBubble.addEventListener('click', () => {
+        chatPopup.style.display = 'flex';
+        chatBubble.style.display = 'none';
+    });
+
+    chatClose.addEventListener('click', () => {
+        chatPopup.style.display = 'none';
+        chatBubble.style.display = 'block';
+    });
+
+    chatSend.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (message === '') return;
+
+        addMessageToChat(message, 'user');
+        chatInput.value = '';
+
+        // Typing indicator
+        const loadingId = 'loading-' + Date.now();
+        const loadingBubble = document.createElement('div');
+        loadingBubble.classList.add('chat-message', 'ai');
+        loadingBubble.id = loadingId;
+        loadingBubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+        chatBody.appendChild(loadingBubble);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message, context: currentScanContext })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const loader = document.getElementById(loadingId);
+            if (loader) loader.remove();
+            if (data.reply) {
+                addMessageToChat(data.reply, 'ai', true);
+            } else {
+                addMessageToChat('Sorry, an error occurred.', 'ai');
+            }
+        })
+        .catch(err => {
+            const loader = document.getElementById(loadingId);
+            if (loader) loader.remove();
+            addMessageToChat('Sorry, could not connect.', 'ai');
+        });
+    }
+
+    function addMessageToChat(text, sender, isMarkdown = false) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message', sender);
+        
+        if (isMarkdown) {
+            // Simple markdown to HTML (bold and lists)
+            let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\* (.*?)(?=\n\* |\n\n|$)/g, '<li>$1</li>');
+            html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+            messageElement.innerHTML = html;
+        } else {
+            messageElement.textContent = text;
+        }
+        
+        chatBody.appendChild(messageElement);
+        
+        // --- THE FIX IS HERE ---
+        // Instead of jumping to the bottom, we gently scroll to the START of the message.
+        if (sender === 'ai') {
+            // If it's the AI (long text), align the top of the message to the view
+            messageElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+            // If it's the User (short text), just scroll to the bottom
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+    }
+
+    const resultElement = document.querySelector('.prediction-result');
+    if (resultElement) {
+        currentScanContext = "Disease: " + resultElement.textContent;
+    }
   </script>
-
-</body> </html>
-
+</body>
+</html>

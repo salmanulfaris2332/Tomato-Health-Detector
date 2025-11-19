@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Health Detector</title>
+    
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#2EC7C0"/>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+<body>
+  <div class="container">
+    <h1>Scan History</h1>
+    
+    <a href="/" class="history-link-button">← Back to Scanner</a>
+    
+    <div class="history-list">
+      {% for scan in scans %}
+        <div class="history-card">
+          <img src="{{ url_for('static', filename='uploads/' + scan['image_filename']) }}" class="history-image">
+          
+          <div class="history-details">
+            <h4>{{ scan['prediction'] }}</h4>
+            <p><strong>Confidence:</strong> {{ "%.2f"|format(scan['confidence']) }}%</p>
+            <p><strong>Scanned on:</strong> {{ scan['scan_time'] }}</p>
+          </div>
+        </div>
+        
+        <div class="header-section">
+      <div class="logo">
+        <span class="logo-icon">🌱</span>
+        <span class="logo-text">AgriLens</span>
+      </div>
+      <div class="header-buttons">
+        <a href="/dashboard" class="history-link-button">
+          <span class="history-icon">📈</span>
+          Dashboard
+        </a>
+        <a href="/history" class="history-link-button">
+          <span class="history-icon">📊</span>
+          Scan History
+        </a>
+      </div>
+    </div>
+      
+      {% else %}
+        <h3>No scans in your history yet.</h3>
+        <p>Go back to the scanner to analyze a new leaf.</p>
+      {% endfor %}
+    </div>
+
+  </div>
+</body>
+</html>

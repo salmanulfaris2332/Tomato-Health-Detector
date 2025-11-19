@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - AgriLens</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-body">
+    <div class="auth-card">
+        <div class="logo">
+            <span class="logo-icon">🌱</span>
+            <span class="logo-text">AgriLens</span>
+        </div>
+        <h2>Welcome Back</h2>
+        <p class="auth-subtitle">Sign in to access your scan history</p>
+        
+        <form method="POST" action="/login">
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="submit-btn">Sign In</button>
+            
+            {% if error %}
+            <div class="error-banner">{{ error }}</div>
+            {% endif %}
+        </form>
+        
+        <div class="auth-footer">
+            Don't have an account? <a href="/register">Sign Up</a>
+            <br><br>
+            <a href="/" class="back-link">← Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>
